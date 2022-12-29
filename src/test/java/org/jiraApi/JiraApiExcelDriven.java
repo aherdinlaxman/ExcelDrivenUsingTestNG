@@ -11,10 +11,7 @@ import static io.restassured.RestAssured.given;
 
 public class JiraApiExcelDriven {
     XLS_Reader reader = new XLS_Reader("./api documentation.xlsx","JiraApi");
-
     SessionFilter sf = new SessionFilter();
-
-
     public JiraApiExcelDriven() throws IOException {
 
     }
@@ -24,8 +21,7 @@ public class JiraApiExcelDriven {
         int expectedStatusCode = Integer.parseInt(reader.getCellData("Expected status Code",rowNumber));
         String body = reader.getCellData("Body",rowNumber);
         String endpoint = reader.getCellData("Endpoint",rowNumber);
-        String URI = reader.getCellData( "Base Uri",rowNumber);
-        RestAssured.baseURI = URI;
+        RestAssured.baseURI = reader.getCellData( "Base Uri",rowNumber);
 
 
         //login
@@ -34,12 +30,11 @@ public class JiraApiExcelDriven {
                 then().log().all().assertThat().statusCode(200);
 
         //creating issue
-        String  postNewIssueResponse= given().log().all().header("Content-Type","application/json")
+
+        return given().log().all().header("Content-Type","application/json")
                 .body(body).filter(sf).
                 when().post(endpoint).
                 then().log().all().assertThat().statusCode(expectedStatusCode).log().all().extract().response().asString();
-
-        return postNewIssueResponse;
 
     }
     @Test
